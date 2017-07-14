@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="bs-component" ng-controller="AddressessCtrl">
+    <p>
+        <div ng-show="loading" id="loading">
+            <img src="~/Content/loader.gif">
+            <br />
+            <h1>Пожалуйста, подождите. Идет загрузка данных</h1>
+        </div>
+    </p>
+    <p>
+        <a class="btn btn-danger" ng-click="clearFilter()">
+            <i class="fa fa-trash-o fa-lg" ng-click="clearFilter()"></i> Очистить фильтры и сортировку
+        </a>
+    </p>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr class="info">
+                <th ng-click="sort('country'); activecol('country')">
+                    Страна
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='country'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('city'); activecol('city')">
+                    Город
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='city'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('street'); activecol('street')">
+                    Улица
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='street'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('house'); activecol('house')">
+                    Дом
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='house'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('zipcode'); activecol('zipcode')">
+                    Индекс
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='zipcode'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+                <th ng-click="sort('date'); activecol('date')">
+                    Дата
+                    <span class="glyphicon sort-icon" ng-show="sortKey=='date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+                </th>
+            </tr>
+            <tr>
+                <th>
+                    <input ng-model="search.country" class="form-control" type="text" id="country" />
+                </th>
+                <th>
+                    <input ng-model="search.city" class="form-control" type="text" id="city" />
+                </th>
+                <th>
+                    <input ng-model="search.street" class="form-control" type="text" id="street" />
+                </th>
+                <th>
+                    <input ng-model="currentNumber" class="form-control" type="number" id="house" />
+                </th>
+                <th>
+                    <input ng-model="search.zipcode" class="form-control" type="number" id="zipcode" />
+                </th>
+                <th>
+                    <input date-range-picker class="form-control date-picker" type="text" ng-model="datePicker" options="opts" id="drp" />
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="address in addressess|orderBy:sortKey:reverse|filter:search|dateRange:datePicker.startDate:datePicker.endDate|numberInt:currentNumber|itemsPerPage:100">
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('country') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('country') != -1) == false}">{{address.country}}</td>
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('city') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('city') != -1) == false}">{{address.city}}</td>
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('street') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('street') != -1) == false}">{{address.street}}</td>
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('house') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('house') != -1) == false}">{{address.house}}</td>
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('zipcode') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('zipcode') != -1) == false}">{{address.zipcode}}</td>
+                <td ng-class="{'activeColumn': (activeColumns.indexOf('date') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('date') != -1) == false}">{{address.date | date: 'dd.MM.yyyy, HH:mm'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col-lg-8">
+            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true">
+            </dir-pagination-controls>
+        </div>
+        <div class="col-lg-4">
+            <h3><span class="label label-info">Всего записей: {{addressess.length}}</span></h3>
+        </div>
+    </div>
+</div>
