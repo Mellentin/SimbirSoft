@@ -1,87 +1,297 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@using SimbirSoft.Models
+@model IndexViewModel
+
+@{
+    ViewData["Title"] = "Главная";
 }
 
 <div class="bs-component" ng-controller="AddressessCtrl">
-    <p>
-        <div ng-show="loading" id="loading">
-            <img src="~/Content/loader.gif">
-            <br />
-            <h1>Пожалуйста, подождите. Идет загрузка данных</h1>
-        </div>
-    </p>
-    <p>
-        <a class="btn btn-danger" ng-click="clearFilter()">
-            <i class="fa fa-trash-o fa-lg" ng-click="clearFilter()"></i> Очистить фильтры и сортировку
+    <div class="form-inline">
+        <a class="btn btn-danger" href="/">
+            Сбросить фильтры и сортировку
         </a>
-    </p>
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr class="info">
-                <th ng-click="sort('country'); activecol('country')">
-                    Страна
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='country'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-                <th ng-click="sort('city'); activecol('city')">
-                    Город
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='city'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-                <th ng-click="sort('street'); activecol('street')">
-                    Улица
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='street'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-                <th ng-click="sort('house'); activecol('house')">
-                    Дом
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='house'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-                <th ng-click="sort('zipcode'); activecol('zipcode')">
-                    Индекс
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='zipcode'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-                <th ng-click="sort('date'); activecol('date')">
-                    Дата
-                    <span class="glyphicon sort-icon" ng-show="sortKey=='date'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
-                </th>
-            </tr>
-            <tr>
-                <th>
-                    <input ng-model="search.country" class="form-control" type="text" id="country" />
-                </th>
-                <th>
-                    <input ng-model="search.city" class="form-control" type="text" id="city" />
-                </th>
-                <th>
-                    <input ng-model="search.street" class="form-control" type="text" id="street" />
-                </th>
-                <th>
-                    <input ng-model="currentNumber" class="form-control" type="number" id="house" />
-                </th>
-                <th>
-                    <input ng-model="search.zipcode" class="form-control" type="number" id="zipcode" />
-                </th>
-                <th>
-                    <input date-range-picker class="form-control date-picker" type="text" ng-model="datePicker" options="opts" id="drp" />
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="address in addressess|orderBy:sortKey:reverse|filter:search|dateRange:datePicker.startDate:datePicker.endDate|numberInt:currentNumber|itemsPerPage:100">
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('country') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('country') != -1) == false}">{{address.country}}</td>
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('city') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('city') != -1) == false}">{{address.city}}</td>
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('street') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('street') != -1) == false}">{{address.street}}</td>
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('house') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('house') != -1) == false}">{{address.house}}</td>
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('zipcode') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('zipcode') != -1) == false}">{{address.zipcode}}</td>
-                <td ng-class="{'activeColumn': (activeColumns.indexOf('date') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('date') != -1) == false}">{{address.date | date: 'dd.MM.yyyy, HH:mm'}}</td>
-            </tr>
-        </tbody>
-    </table>
+        <button type="submit" form="mainForm" class="btn btn-danger">Применить фильтр</button>
+    </div>
+
+    <form method="get" id="mainForm" action="">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr class="info">
+                    <th ng-click="activecol('country')">
+                        @Html.ActionLink("Страна", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.CountrySort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "CountryAsc" || Request.QueryString["sortOrder"] == "CountryDesc")
+                            {
+                                switch (Model.SortViewModel.CountrySort)
+                                {
+                                    case SortState.CountryDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.CountryAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                    <th ng-click="activecol('city')">
+                        @Html.ActionLink("Город", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.CitySort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "CityAsc" || Request.QueryString["sortOrder"] == "CityDesc")
+                            {
+                                switch (Model.SortViewModel.CitySort)
+                                {
+                                    case SortState.CityDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.CityAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                    <th ng-click="activecol('street')">
+                        @Html.ActionLink("Улица", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.StreetSort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "StreetAsc" || Request.QueryString["sortOrder"] == "StreetDesc")
+                            {
+                                switch (Model.SortViewModel.StreetSort)
+                                {
+                                    case SortState.StreetDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.StreetAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                    <th ng-click="activecol('house')">
+                        @Html.ActionLink("Дом", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.HouseSort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "HouseAsc" || Request.QueryString["sortOrder"] == "houseDesc")
+                            {
+                                switch (Model.SortViewModel.HouseSort)
+                                {
+                                    case SortState.HouseDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.HouseAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                    <th ng-click="activecol('zipcode')">
+                        @Html.ActionLink("Почтовый индекс", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.ZipcodeSort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "ZipcodeAsc" || Request.QueryString["sortOrder"] == "ZipcodeDesc")
+                            {
+                                switch (Model.SortViewModel.ZipcodeSort)
+                                {
+                                    case SortState.ZipcodeDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.ZipcodeAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                    <th ng-click="activecol('date')">
+                        @Html.ActionLink("Дата создания", "Index", new
+                   {
+                       sortOrder = Model.SortViewModel.DateSort,
+                       country = Model.FilterViewModel.SelectedCountry,
+                       city = Model.FilterViewModel.SelectedCity,
+                       street = Model.FilterViewModel.SelectedStreet,
+                       house = Model.FilterViewModel.SelectedHouse,
+                       zipcode = Model.FilterViewModel.SelectedZipcode,
+                       start = Model.FilterViewModel.SelectedStartDate,
+                       end = Model.FilterViewModel.SelectedEndDate,
+                   })
+
+                        @if (Request.QueryString["sortOrder"].IsEmpty() == false)
+                        {
+                            if (Request.QueryString["sortOrder"] == "DateAsc" || Request.QueryString["sortOrder"] == "DateDesc")
+                            {
+                                switch (Model.SortViewModel.DateSort)
+                                {
+                                    case SortState.DateDesc:
+                                        <i class="glyphicon glyphicon-chevron-down"></i>
+                                        break;
+
+                                    case SortState.DateAsc:
+                                        <i class="glyphicon glyphicon-chevron-up"></i>
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.TextBox("country", Model.FilterViewModel.SelectedCountry, htmlAttributes: new { @class = "form-control" })
+                    </th>
+                    <th>
+                        @Html.TextBox("city", Model.FilterViewModel.SelectedCity, htmlAttributes: new { @class = "form-control" })
+                    </th>
+                    <th>
+                        @Html.TextBox("street", Model.FilterViewModel.SelectedStreet, htmlAttributes: new { @class = "form-control" })
+                    </th>
+                    <th>
+                        @Html.TextBox("house", Model.FilterViewModel.SelectedHouse, htmlAttributes: new { @class = "form-control" })
+                    </th>
+                    <th>
+                        @Html.TextBox("zipcode", Model.FilterViewModel.SelectedZipcode, htmlAttributes: new { @class = "form-control" })
+                    </th>
+                    <th>
+                        <input date-range-picker class="form-control date-picker" type="text" ng-model="datePicker" options="opts" id="drp" />
+                        @Html.TextBox("start", Model.FilterViewModel.SelectedStartDate, htmlAttributes: new { @hidden = "true", @id = "startDateTT" })
+                        @Html.TextBox("end", Model.FilterViewModel.SelectedEndDate, htmlAttributes: new { @hidden = "true", @id = "endDateTT" })
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Address a in Model.Addressess)
+                {
+                    <tr>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('country') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('country') != -1) == false}">@a.country</td>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('city') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('city') != -1) == false}">@a.city</td>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('street') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('street') != -1) == false}">@a.street</td>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('house') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('house') != -1) == false}">@a.house</td>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('zipcode') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('zipcode') != -1) == false}">@a.zipcode</td>
+                        <td ng-class="{'activeColumn': (activeColumns.indexOf('date') != -1) == true, 'inactiveColumn': (activeColumns.indexOf('date') != -1) == false}">@a.date</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
     <div class="row">
-        <div class="col-lg-8">
-            <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true">
-            </dir-pagination-controls>
+        <div class="col-lg-6">
+            @if (Model.PageViewModel.HasPreviousPage)
+            {
+                @Html.ActionLink("Назад", "Index", new
+           {
+               page = Model.PageViewModel.PageNumber - 1,
+               country = Model.FilterViewModel.SelectedCountry,
+               city = Model.FilterViewModel.SelectedCity,
+               street = Model.FilterViewModel.SelectedStreet,
+               house = Model.FilterViewModel.SelectedHouse,
+               zipcode = Model.FilterViewModel.SelectedZipcode,
+               start = Model.FilterViewModel.SelectedStartDate,
+               end = Model.FilterViewModel.SelectedEndDate,
+               sortOrder = Model.SortViewModel.Current
+           }, new { @class = "btn btn-info" })
+            }
+
+            @if (Model.PageViewModel.HasNextPage)
+            {
+                @Html.ActionLink("Вперед", "Index", new
+           {
+               page = Model.PageViewModel.PageNumber + 1,
+               country = Model.FilterViewModel.SelectedCountry,
+               city = Model.FilterViewModel.SelectedCity,
+               street = Model.FilterViewModel.SelectedStreet,
+               house = Model.FilterViewModel.SelectedHouse,
+               zipcode = Model.FilterViewModel.SelectedZipcode,
+               start = Model.FilterViewModel.SelectedStartDate,
+               end = Model.FilterViewModel.SelectedEndDate,
+               sortOrder = Model.SortViewModel.Current
+           }, new { @class = "btn btn-info" })
+            }
         </div>
-        <div class="col-lg-4">
-            <h3><span class="label label-info">Всего записей: {{addressess.length}}</span></h3>
+        <div class="col-lg-3">
+            <h3>
+                <span class="label label-info">Страница @Model.PageViewModel.PageNumber из @Model.PageViewModel.TotalPages</span>
+            </h3>
+        </div>
+        <div class="col-lg-3">
+            <h3>
+                <span class="label label-info">Всего найдено записей: @ViewData["TotalItems"]</span>
+            </h3>
         </div>
     </div>
 </div>

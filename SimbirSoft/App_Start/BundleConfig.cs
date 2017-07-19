@@ -24,7 +24,6 @@ namespace SimbirSoft
                       "~/Scripts/respond.js",
                       "~/Scripts/angular.js",
                       "~/Scripts/app.js",
-                      "~/Scripts/dirPagination.js",
                       "~/Scripts/moment.js",
                       "~/Scripts/daterangepicker.js",
                       "~/Scripts/angular-daterangepicker.js"));

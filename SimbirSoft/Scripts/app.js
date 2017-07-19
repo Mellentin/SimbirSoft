@@ -1,29 +1,6 @@
-﻿var app = angular.module('AddressessApp', ['angularUtils.directives.dirPagination', 'daterangepicker']);
+﻿var app = angular.module('AddressessApp', ['daterangepicker']);
 
 app.controller('AddressessCtrl', function ($scope, $http, $filter) {
-    $scope.addressess = [];
-    $scope.curpage = 1;
-    $scope.loading = true;
-    $http.get('/Home/LoadDbData').then(function (response) {
-        var json = response.data;
-
-        for (var i = 0; i <= json.length - 1; i++) {
-            json[i].date = moment(json[i].date);
-            json[i].date = new Date(json[i].date);
-            json[i].house = Number(json[i].house);
-        }
-
-        $scope.addressess = json;
-        $scope.loading = false;
-    });
-
-    $scope.search = function (row) {
-        return (
-            angular.lowercase(row.country).indexOf(angular.lowercase($scope.query) || '') !== -1 ||
-            angular.lowercase(row.city).indexOf(angular.lowercase($scope.query) || '') !== -1 ||
-            angular.lowercase(row.street).indexOf(angular.lowercase($scope.query) || '') !== -1
-        );
-    };
 
     $scope.datePicker = { startDate: null, endDate: null };
 
@@ -61,13 +38,16 @@ app.controller('AddressessCtrl', function ($scope, $http, $filter) {
             ],
             "firstDay": 1
         },
+
         "startDate": moment().startOf('month'),
         "endDate": moment().endOf('month'),
-    };
 
-    $scope.sort = function (keyname) {
-        $scope.sortKey = keyname;
-        $scope.reverse = !$scope.reverse;
+        eventHandlers: {
+            'apply.daterangepicker': function (ev, picker) {
+                $('#startDateTT').val(moment($scope.datePicker.startDate).format("DD/MM/YYYY"));
+                $('#endDateTT').val(moment($scope.datePicker.endDate).format("DD/MM/YYYY"));
+            }
+        }
     };
 
     $scope.lastColumn = '';
@@ -160,42 +140,4 @@ app.controller('AddressessCtrl', function ($scope, $http, $filter) {
                 $scope.activeColumns.push('drp');
         }
     });
-});
-
-app.filter('dateRange', function () {
-    return function (items, startDate, endDate) {
-        var result = [];
-
-        if (!startDate && !endDate) {
-            return items;
-        }
-
-        angular.forEach(items, function (obj) {
-            var received = obj.date;
-            if (moment(received).isAfter(startDate) && moment(received).isBefore(endDate)) {
-                result.push(obj);
-            }
-        });
-
-        return result;
-    }
-});
-
-app.filter('numberInt', function () {
-    return function (items, number) {
-        var result = [];
-
-        if (!number) {
-            return items;
-        }
-
-        angular.forEach(items, function (obj) {
-            var received = obj.house;
-            if (number === received) {
-                result.push(obj);
-            }
-        });
-
-        return result;
-    }
 });
